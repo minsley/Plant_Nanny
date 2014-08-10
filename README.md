@@ -15,7 +15,7 @@ Built to work with these lovely doodads:
 TODO (sorted by difficulty, ascending):
 
 * Flash a message on the LCD when something needs adjustment (water me).
-* Normalize the light and moisture values to a useful scale.
 * Write historical values in 10, 30 or 60-minute intervals to micro-SD.
-* Open/close the moisture sensor circuit at intervals to slow oxidation (and measure less frequently).
+* Done. ~~Open/close the moisture sensor circuit at intervals to slow oxidation (and measure less frequently).~~
+* Normalize the light and moisture values to a useful scale.
 * Add a solenoid attached to a water bottle for self-watering.
