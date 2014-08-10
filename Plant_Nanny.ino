@@ -53,9 +53,16 @@ int l;
 Set up the moisture sensor
 ***************************************/
 
-#define MSPIN 1
+#define MSDATAPIN 1
+#define MSPWRPIN 3
 
 int m;
+int timeSinceMRead;
+
+#define MSReadTime 100
+
+// num cycles to skip moisture readings (slows sensor oxidation)
+#define MSWaitCycles 30
 
 /***************************************
 Main Setup()
@@ -79,6 +86,10 @@ void setup()
   
   dht.begin();
   Serial.println("DHT11 initialized");
+  
+  pinMode(MSPWRPIN, OUTPUT);
+  timeSinceMRead = 0;
+  Serial.println("Hygrometer initialized]");
 }
 
 /***************************************
@@ -90,7 +101,15 @@ void loop()
   f = dht.readTemperature(true);
   h = dht.readHumidity();
   l = analogRead(LSPIN);
-  m = analogRead(MSPIN);
+  
+  if(timeSinceMRead <= 0)
+  {
+    digitalWrite(MSPWRPIN, HIGH);
+    delay(MSReadTime);  // sensor needs some time to power up
+    m = analogRead(MSDATAPIN);
+    digitalWrite(MSPWRPIN, LOW);
+    timeSinceMRead = MSWaitCycles;
+  } else { timeSinceMRead--; }
   
   TFTscreen.stroke(0,0,0);
   TFTscreen.text(temp, 0, 10);
@@ -108,15 +127,6 @@ void loop()
   TFTscreen.text(humid, 0, 50);
   TFTscreen.text(light, 0, 90);
   TFTscreen.text(moist, 0, 130);
-  
-  Serial.print("Temp: ");
-  Serial.print(f);
-  Serial.print("\tHumid: ");
-  Serial.print(h);
-  Serial.print("\tLight: ");
-  Serial.print(l);
-  Serial.print("\tMoist: ");
-  Serial.println(m);
   
   delay(cycleTime);
 }
