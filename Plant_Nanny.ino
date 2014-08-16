@@ -13,8 +13,8 @@ Set up the LCD
 #include <SPI.h>
 #include <TFT.h>
 
-#define cs 10
-#define dc 9
+#define cs  10
+#define dc  9
 #define rst 8
 
 TFT TFTscreen = TFT(cs,dc,rst);
@@ -23,6 +23,18 @@ char temp[6];
 char humid[6];
 char light[4];
 char moist[4];
+
+/***************************************
+Set up the SD
+***************************************/
+
+#include <SD.h>
+
+#define mosi 11
+#define sclk 13
+#define sd_cs  4
+
+File diary;
 
 /***************************************
 Set up the HT sensor
@@ -34,7 +46,7 @@ Set up the HT sensor
 #define DHTPIN 2
 #define DHTTYPE DHT11 
 
-int cycleTime = 2000;
+int cycleTime = 5000;
 
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -62,7 +74,7 @@ int timeSinceMRead;
 #define MSReadTime 100
 
 // num cycles to skip moisture readings (slows sensor oxidation)
-#define MSWaitCycles 30
+#define MSWaitCycles 12
 
 /***************************************
 Main Setup()
@@ -84,12 +96,16 @@ void setup()
   TFTscreen.setTextSize(2);
   Serial.println("TFT Screen initialized.");
   
+  //pinMode(10, OUTPUT);
+  SD.begin(sd_cs);
+  Serial.println("SD Card initialized.");
+  
   dht.begin();
-  Serial.println("DHT11 initialized");
+  Serial.println("DHT11 initialized.");
   
   pinMode(MSPWRPIN, OUTPUT);
   timeSinceMRead = 0;
-  Serial.println("Hygrometer initialized]");
+  Serial.println("Hygrometer initialized.");
 }
 
 /***************************************
@@ -128,5 +144,24 @@ void loop()
   TFTscreen.text(light, 0, 90);
   TFTscreen.text(moist, 0, 130);
   
+  String record = String(temp)  + "\t" +
+             String(humid) + "\t" +
+             String(light) + "\t" +
+             String(moist);
+  
+  Serial.println(record);
+  
+  writeToLog(record);
+  
   delay(cycleTime);
+}
+
+void writeToLog(String text)
+{
+  diary = SD.open("log.txt", FILE_WRITE);
+  if(diary)
+  {
+    diary.println(text);
+  }
+  diary.close();
 }
