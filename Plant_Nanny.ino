@@ -31,6 +31,7 @@ Set up the SD
 #include <SD.h>
 
 #define mosi 11
+#define miso 12
 #define sclk 13
 #define sd_cs  4
 
